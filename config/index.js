@@ -1,5 +1,4 @@
 export { default as app } from './app';
-export { default as db } from './db';
 export { default as engine } from './engine';
 export { default as user } from './user';
 export { default as mailer } from './mailer';

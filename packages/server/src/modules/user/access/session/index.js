@@ -4,21 +4,21 @@ import AccessModule from '../AccessModule';
 import schema from './schema.graphql';
 import resolvers from './resolvers';
 import scopes from '../../scopes';
-import User from '../../sql';
+import User from '../../db';
 import settings from '../../../../../../../settings';
 
 const grant = async (user, req) => {
   const session = {
     ...req.session,
-    userId: user.id
+    _id: user.id
   };
 
   req.session = writeSession(req, session);
 };
 
 const getCurrentUser = async ({ req }) => {
-  if (req && req.session.userId) {
-    return await User.getUser(req.session.userId);
+  if (req && req.session._id) {
+    return await User.getUser(req.session._id);
   }
 };
 

@@ -11,8 +11,7 @@ import log from '../../common/log';
 let server;
 let db;
 let mutableServerPromise;
-
-const url = 'mongodb://localhost:27017/integration_test';
+const url = process.env.DB_HOST;
 
 server = http.createServer();
 server.on('request', app);
@@ -23,7 +22,7 @@ MongoClient.connect(
   url,
   (err, client) => {
     if (err) throw err;
-    db = client.db('myDatabaseNameAsAString');
+    db = client.db(process.env.DB_DATABASE);
 
     // Start the application after the database connection is ready
     mutableServerPromise = new Promise(resolve => {
@@ -65,4 +64,4 @@ if (module.hot) {
 }
 
 export default { ...mutableServerPromise };
-export const mongo = async cb => cb(await db);
+export const mongo = async cb => await cb(await db);

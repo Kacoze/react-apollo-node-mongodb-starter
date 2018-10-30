@@ -4,7 +4,7 @@ import GitHubStrategy from 'passport-github';
 
 import resolvers from './resolvers';
 import AuthModule from '../AuthModule';
-import User from '../../sql';
+import User from '../../db';
 import settings from '../../../../../../../settings';
 import access from '../../access';
 import getCurrentUser from '../utils';
@@ -32,7 +32,7 @@ if (settings.user.auth.github.enabled && !__TEST__) {
 
           if (!user) {
             const isActive = true;
-            const [createdUserId] = await User.register({
+            const [created_id] = await User.register({
               username: username ? username : displayName,
               email: value,
               password: id,
@@ -42,15 +42,15 @@ if (settings.user.auth.github.enabled && !__TEST__) {
             await User.createGithubAuth({
               id,
               displayName,
-              userId: createdUserId
+              _id: created_id
             });
 
-            user = await User.getUser(createdUserId);
+            user = await User.getUser(created_id);
           } else if (!user.ghId) {
             await User.createGithubAuth({
               id,
               displayName,
-              userId: user.id
+              _id: user.id
             });
           }
           return cb(null, pick(user, ['id', 'username', 'role', 'email']));

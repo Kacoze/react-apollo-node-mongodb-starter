@@ -3,7 +3,7 @@ import { pick } from 'lodash';
 import jwt from 'jsonwebtoken';
 
 import access from '../../access';
-import User from '../../sql';
+import User from '../../db';
 import FieldError from '../../../../../../common/FieldError';
 import settings from '../../../../../../../settings';
 
@@ -38,6 +38,7 @@ export default () => ({
       { req }
     ) {
       try {
+        usernameOrEmail = usernameOrEmail.toLowerCase();
         const user = await User.getUserByUsernameOrEmail(usernameOrEmail);
         await validateUserPassword(user, password, req.t);
 
@@ -50,6 +51,8 @@ export default () => ({
     },
     async register(obj, { input }, { mailer, User, req }) {
       try {
+        input.email = input.email.toLowerCase();
+        input.username = input.username.toLowerCase();
         const { t } = req;
         const e = new FieldError();
         const userExists = await User.getUserByUsername(input.username);
@@ -59,35 +62,39 @@ export default () => ({
         }
 
         const emailExists = await User.getUserByEmail(input.email);
-        console.log(emailExists);
         if (emailExists) {
           e.setError('email', t('user:auth.password.emailIsExisted'));
         }
 
         e.throwIf();
 
-        let userId = 0;
+        let user;
         if (!emailExists) {
           let isActive = false;
           if (!settings.user.auth.password.confirm) {
             isActive = true;
           }
 
-          [userId] = await User.register({ ...input, isActive });
+          await User.register({ ...input, isActive });
 
+          user = await User.getUserByEmail(input.email);
+          await User.editUser({ ...input, id: user._id });
+          user = { ...user, id: user._id };
+          console.log(user);
           // if user has previously logged with facebook auth
         } else {
-          await User.updatePassword(emailExists.userId, input.password);
-          userId = emailExists.userId;
+          await User.updatePassword(emailExists.id, input.password);
         }
-
-        const user = await User.getUser(userId);
 
         if (mailer && settings.user.auth.password.sendConfirmationEmail && !emailExists && req) {
           // async email
           jwt.sign({ user: pick(user, 'id') }, settings.user.secret, { expiresIn: '1d' }, (err, emailToken) => {
+            if (err) {
+              console.log(err);
+            }
             const encodedToken = Buffer.from(emailToken).toString('base64');
             const url = `${__WEBSITE_URL__}/confirmation/${encodedToken}`;
+            console.log(settings.app.name, process.env.EMAIL_USER, user, url, input.password);
             mailer.sendMail({
               from: `${settings.app.name} <${process.env.EMAIL_USER}>`,
               to: user.email,

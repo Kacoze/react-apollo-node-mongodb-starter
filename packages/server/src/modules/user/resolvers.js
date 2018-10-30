@@ -89,20 +89,22 @@ export default pubsub => ({
 
           e.throwIf();
 
-          const [createdUserId] = await User.register({ ...input });
-          await User.editUserProfile({ id: createdUserId, ...input });
+          await User.register({ ...input });
+          // await User.editUserProfile({ id: created_id, ...input });
 
-          if (settings.user.auth.certificate.enabled) {
-            await User.editAuthCertificate({ id: createdUserId, ...input });
-          }
+          // if (settings.user.auth.certificate.enabled) {
+          //   await User.editAuthCertificate({ id: created_id, ...input });
+          // }
 
-          const user = await User.getUser(createdUserId);
+          const user = await User.getUserByEmail(input.email);
 
           if (mailer && settings.user.auth.password.sendAddNewUserEmail && !emailExists && req) {
             // async email
             jwt.sign({ user: pick(user, 'id') }, settings.user.secret, { expiresIn: '1d' }, (err, emailToken) => {
               const encodedToken = Buffer.from(emailToken).toString('base64');
               const url = `${__WEBSITE_URL__}/confirmation/${encodedToken}`;
+              console.log(url);
+              console.log('should send');
               mailer.sendMail({
                 from: `${settings.app.name} <${process.env.EMAIL_USER}>`,
                 to: user.email,
@@ -159,12 +161,12 @@ export default pubsub => ({
 
           const userInfo = !isSelf() && isAdmin() ? input : pick(input, ['id', 'username', 'email', 'password']);
 
-          await User.editUser(userInfo);
+          await User.editUser({ ...userInfo, isActive: true });
           await User.editUserProfile(input);
 
-          if (settings.user.auth.certificate.enabled) {
-            await User.editAuthCertificate(input);
-          }
+          // if (settings.user.auth.certificate.enabled) {
+          //   await User.editAuthCertificate(input);
+          // }
           const user = await User.getUser(input.id);
           pubsub.publish(USERS_SUBSCRIPTION, {
             usersUpdated: {

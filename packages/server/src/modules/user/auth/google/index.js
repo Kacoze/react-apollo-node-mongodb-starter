@@ -4,7 +4,7 @@ import { OAuth2Strategy as GoogleStrategy } from 'passport-google-oauth';
 
 import resolvers from './resolvers';
 import AuthModule from '../AuthModule';
-import User from '../../sql';
+import User from '../../db';
 import access from '../../access';
 import settings from '../../../../../../../settings';
 import getCurrentUser from '../utils';
@@ -31,7 +31,7 @@ if (settings.user.auth.google.enabled && !__TEST__) {
 
           if (!user) {
             const isActive = true;
-            const [createdUserId] = await User.register({
+            const [created_id] = await User.register({
               username: username ? username : value,
               email: value,
               password: id,
@@ -41,23 +41,23 @@ if (settings.user.auth.google.enabled && !__TEST__) {
             await User.createGoogleOAuth({
               id,
               displayName,
-              userId: createdUserId
+              _id: created_id
             });
 
             await User.editUserProfile({
-              id: createdUserId,
+              id: created_id,
               profile: {
                 firstName: profile.name.givenName,
                 lastName: profile.name.familyName
               }
             });
 
-            user = await User.getUser(createdUserId);
+            user = await User.getUser(created_id);
           } else if (!user.googleId) {
             await User.createGoogleOAuth({
               id,
               displayName,
-              userId: user.id
+              _id: user.id
             });
           }
 

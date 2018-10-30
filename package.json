@@ -26,7 +26,6 @@
     "watch": "spin watch",
     "heroku-postbuild": "lerna run heroku-postbuild --stream",
     "cli": "node tools/cli",
-    "precommit": "lint-staged"
   },
   "lint-staged": {
     "*.{js,jsx,json}": [
