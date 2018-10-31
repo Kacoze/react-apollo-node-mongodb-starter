@@ -12,8 +12,21 @@ const o_id = id => new mongodb.ObjectID(id);
 
 // Actual query fetching and transformation in DB
 class User {
-  getUsers(orderBy, filter) {
-    return mongo(db => db.collection('users').find({}));
+  async getUsers({ column, order }, { searchText, role, isActive }) {
+    let columnOrder = !order ? 1 : order === 'desc' ? 1 : -1;
+    const query = await mongo(db =>
+      db
+        .collection('users')
+        .find({
+          $query: {
+            role: role || { $regex: `.*$` },
+            isActive,
+            $or: [{ username: { $regex: `.*${searchText}.*` } }, { email: { $regex: `.*${searchText}.*` } }]
+          }
+        })
+        .addQueryModifier('$orderby', { [`${column || 'email'}`]: columnOrder })
+    );
+    return query.toArray();
   }
 
   getUser(id) {
@@ -57,15 +70,9 @@ class User {
     );
   }
 
-  createFacebookAuth({ id, displayName, _id }) {
-    return mongo(db =>
-      db.collection('users').insertOne({ fb_id: id, display_name: displayName, _id: _id }, (err, docs) => {
-        if (err) {
-          throw err;
-        } else {
-          return docs.insertedId;
-        }
-      })
+  async createFacebookAuth({ id, displayName, _id }) {
+    return await mongo(db =>
+      db.collection('users').update({ _id: o_id(_id) }, { $set: { fb_id: id, display_name: displayName, id: _id } })
     );
   }
 
@@ -163,13 +170,11 @@ class User {
   //     .del();
   // }
 
-  // async updatePassword(id, newPassword) {
-  //   const passwordHash = await bcrypt.hash(newPassword, 12);
+  async updatePassword(id, newPassword) {
+    const passwordHash = await bcrypt.hash(newPassword, 12);
 
-  //   return knex('user')
-  //     .update({ passwordHash: passwordHash })
-  //     .where({ id });
-  // }
+    return mongo(db => db.collection('users').update({ id }, { $set: { passwordHash } }));
+  }
 
   async updateActive(id, isActive) {
     return await mongo(db => db.collection('users').update({ _id: o_id(id) }, { $set: { isActive: isActive } }));
@@ -179,28 +184,9 @@ class User {
     return await mongo(db => db.collection('users').findOne({ email }));
   }
 
-  // async getUserByFbIdOrEmail(id, email) {
-  //   return camelizeKeys(
-  //     await knex
-  //       .select(
-  //         'u.id',
-  //         'u.username',
-  //         'u.role',
-  //         'u.isActive',
-  //         'fa.fb_id',
-  //         'u.email',
-  //         'u.passwordHash',
-  //         'up.first_name',
-  //         'up.last_name'
-  //       )
-  //       .from('user AS u')
-  //       .leftJoin('auth_facebook AS fa', 'fa._id', 'u.id')
-  //       .leftJoin('user_profile AS up', 'up._id', 'u.id')
-  //       .where('fa.fb_id', '=', id)
-  //       .orWhere('u.email', '=', email)
-  //       .first()
-  //   );
-  // }
+  async getUserByFbIdOrEmail(id, email) {
+    return await mongo(db => db.collection('users').findOne({ $or: [{ fb_id: id }, { email }] }));
+  }
 
   // async getUserByLnInIdOrEmail(id, email) {
   //   return camelizeKeys(
