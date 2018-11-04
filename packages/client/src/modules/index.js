@@ -8,12 +8,4 @@ import './favicon';
 
 import ClientModule from './ClientModule';
 
-export default new ClientModule(
-  //
-  contact,
-  defaultRouter,
-  pagination,
-  user,
-  i18n,
-  pageNotFound
-);
+export default new ClientModule(contact, defaultRouter, pagination, user, i18n, pageNotFound); //

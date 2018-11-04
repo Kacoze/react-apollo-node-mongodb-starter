@@ -8,12 +8,4 @@ import './debug';
 
 import ServerModule from './ServerModule';
 
-export default new ServerModule(
-  //
-  cookies,
-  i18n,
-  user,
-  contact,
-  mailer,
-  graphqlTypes
-);
+export default new ServerModule(cookies, i18n, user, contact, mailer, graphqlTypes); //
