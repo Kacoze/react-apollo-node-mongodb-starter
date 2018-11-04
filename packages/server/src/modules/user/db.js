@@ -7,9 +7,6 @@ const mongodb = require('mongodb');
 
 const o_id = id => new mongodb.ObjectID(id);
 
-// import knex from '../../sql/connector';
-// import { returnId } from '../../sql/helpers';
-
 // Actual query fetching and transformation in DB
 class User {
   async getUsers({ column, order }, { searchText, role, isActive }) {
@@ -145,32 +142,9 @@ class User {
     }
   }
 
-  // async editAuthCertificate({
-  //   id,
-  //   auth: {
-  //     certificate: { serial }
-  //   }
-  // }) {
-  //   const userProfile = await knex
-  //     .select('id')
-  //     .from('auth_certificate')
-  //     .where({ _id: id })
-  //     .first();
-
-  //   if (userProfile) {
-  //     return knex('auth_certificate')
-  //       .update({ serial })
-  //       .where({ _id: id });
-  //   } else {
-  //     return returnId(knex('auth_certificate')).insert({ serial, _id: id });
-  //   }
-  // }
-
-  // deleteUser(id) {
-  //   return knex('user')
-  //     .where('id', '=', id)
-  //     .del();
-  // }
+  async deleteUser(id) {
+    return await mongo(db => db.collection('users').delete({ id }));
+  }
 
   async updatePassword(id, newPassword) {
     const passwordHash = await bcrypt.hash(newPassword, 12);
@@ -190,85 +164,8 @@ class User {
     return await mongo(db => db.collection('users').findOne({ $or: [{ fb_id: id }, { email }] }));
   }
 
-  // async getUserByLnInIdOrEmail(id, email) {
-  //   return camelizeKeys(
-  //     await knex
-  //       .select(
-  //         'u.id',
-  //         'u.username',
-  //         'u.role',
-  //         'u.isActive',
-  //         'lna.ln_id',
-  //         'u.email',
-  //         'u.passwordHash',
-  //         'up.first_name',
-  //         'up.last_name'
-  //       )
-  //       .from('user AS u')
-  //       .leftJoin('auth_linkedin AS lna', 'lna._id', 'u.id')
-  //       .leftJoin('user_profile AS up', 'up._id', 'u.id')
-  //       .where('lna.ln_id', '=', id)
-  //       .orWhere('u.email', '=', email)
-  //       .first()
-  //   );
-  // }
-
-  // async getUserByGHIdOrEmail(id, email) {
-  //   return camelizeKeys(
-  //     await knex
-  //       .select(
-  //         'u.id',
-  //         'u.username',
-  //         'u.role',
-  //         'u.isActive',
-  //         'gha.gh_id',
-  //         'u.email',
-  //         'u.passwordHash',
-  //         'up.first_name',
-  //         'up.last_name'
-  //       )
-  //       .from('user AS u')
-  //       .leftJoin('auth_github AS gha', 'gha._id', 'u.id')
-  //       .leftJoin('user_profile AS up', 'up._id', 'u.id')
-  //       .where('gha.gh_id', '=', id)
-  //       .orWhere('u.email', '=', email)
-  //       .first()
-  //   );
-  // }
-
-  // async getUserByGoogleIdOrEmail(id, email) {
-  //   return camelizeKeys(
-  //     await knex
-  //       .select(
-  //         'u.id',
-  //         'u.username',
-  //         'u.role',
-  //         'u.isActive',
-  //         'ga.google_id',
-  //         'u.email',
-  //         'u.passwordHash',
-  //         'up.first_name',
-  //         'up.last_name'
-  //       )
-  //       .from('user AS u')
-  //       .leftJoin('auth_google AS ga', 'ga._id', 'u.id')
-  //       .leftJoin('user_profile AS up', 'up._id', 'u.id')
-  //       .where('ga.google_id', '=', id)
-  //       .orWhere('u.email', '=', email)
-  //       .first()
-  //   );
-  // }
-
   getUserByUsername(username) {
     return mongo(db => db.collection('users').findOne({ username }));
-    // return camelizeKeys(
-    //   await knex
-    //     .select('u.id', 'u.username', 'u.role', 'u.isActive', 'u.email', 'up.first_name', 'up.last_name')
-    //     .from('user AS u')
-    //     .where('u.username', '=', username)
-    //     .leftJoin('user_profile AS up', 'up._id', 'u.id')
-    //     .first()
-    // );
   }
 
   async getUserByUsernameOrEmail(usernameOrEmail) {
