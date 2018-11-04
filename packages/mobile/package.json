@@ -25,12 +25,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sysgears/apollo-universal-starter-kit"
+    "url": "https://github.com/kacoze/react-apollo-node-mongodb-starter"
   },
   "bugs": {
-    "url": "https://github.com/sysgears/apollo-universal-starter-kit/issues"
+    "url": "https://github.com/kacoze/react-apollo-node-mongodb-starter/issues"
   },
-  "homepage": "https://github.com/sysgears/apollo-universal-starter-kit",
+  "homepage": "https://github.com/kacoze/react-apollo-node-mongodb-starter",
   "keywords": [
     "apollo",
     "universal",

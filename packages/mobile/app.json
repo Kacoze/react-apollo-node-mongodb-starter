@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "Apollo Universal Starter Kit",
+    "name": "react-apollo-node-mongodb-starter",
     "icon": "../../app.png",
     "version": "1.0.0",
-    "slug": "apollo-universal-starter-kit",
+    "slug": "react-apollo-node-mongodb-starter",
     "sdkVersion": "27.0.0",
     "ios": {
       "bundleIdentifier": "com.sysgears.apollokit"
