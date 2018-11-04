@@ -71,7 +71,9 @@ class User {
 
   async createFacebookAuth({ id, displayName, _id }) {
     return await mongo(db =>
-      db.collection('users').update({ _id: o_id(_id) }, { $set: { fb_id: id, display_name: displayName, id: _id } })
+      db
+        .collection('users')
+        .update({ _id: o_id(_id) }, { $set: { fb_id: id, display_name: displayName, id: _id, isActive: true } })
     );
   }
 
