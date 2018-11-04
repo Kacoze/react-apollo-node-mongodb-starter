@@ -13,7 +13,7 @@ This starter is built on top of Apollo, GraphQL, JWT, React 16, Redux, React Nat
 
 The starter kit also integrates Twitter Bootstrap, Ant Design, Ant Design Mobile, Styled Components, and NativeBase to provide great possibilities for styling for your web and mobile applications.
 
-# Hot to run
+# How to run
 Verify if you use Node.js 6.x or higher (Node.js 8.x is recommended) before running the starter kit in your development environment.
 You also need mongo installed on your machine.
 
