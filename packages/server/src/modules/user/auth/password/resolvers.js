@@ -56,7 +56,6 @@ export default () => ({
         const { t } = req;
         const e = new FieldError();
         const userExists = await User.getUserByUsername(input.username);
-        console.log(userExists);
         if (userExists) {
           e.setError('username', t('user:auth.password.usernameIsExisted'));
         }
@@ -78,9 +77,6 @@ export default () => ({
           await User.register({ ...input, isActive });
 
           user = await User.getUserByEmail(input.email);
-          await User.editUser({ ...input, id: user._id });
-          user = { ...user, id: user._id };
-          console.log(user);
           // if user has previously logged with facebook auth
         } else {
           await User.updatePassword(emailExists.id, input.password);

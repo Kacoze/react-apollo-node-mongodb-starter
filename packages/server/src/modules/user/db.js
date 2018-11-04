@@ -59,15 +59,17 @@ class User {
 
   async register({ username, email, password, role, isActive }) {
     const passwordHash = await bcrypt.hash(password, 12);
-    return await mongo(db =>
-      db.collection('users').insertOne({
+    return await mongo(async db => {
+      await db.collection('users').insertOne({
         username,
         email,
         role: role || 'user',
         passwordHash: passwordHash,
         isActive: !!isActive
-      })
-    );
+      });
+      const user = await db.collection('users').findOne({ email });
+      return await db.collection('users').update({ email }, { $set: { id: user._id.toString() } });
+    });
   }
 
   async createFacebookAuth({ id, displayName, _id }) {

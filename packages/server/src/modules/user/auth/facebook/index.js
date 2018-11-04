@@ -28,30 +28,26 @@ if (settings.user.auth.facebook.enabled && !__TEST__) {
           displayName,
           emails: [{ value }]
         } = profile;
+        const email = value.toLowerCase();
         try {
-          let user = await User.getUserByFbIdOrEmail(id, value);
-
+          let user = await User.getUserByFbIdOrEmail(id, email);
           if (!user) {
             const isActive = true;
-            const [created_id] = await User.register({
+            await User.register({
               username: username ? username : displayName,
-              email: value,
+              email,
               password: id,
-              isActive
-            });
-
-            await User.createFacebookAuth({
-              id,
+              isActive,
               displayName,
-              _id: created_id
+              fb_id: id
             });
 
-            user = await User.getUser(created_id);
+            user = await User.getUserByEmail(email);
           } else if (!user.fbId) {
             await User.createFacebookAuth({
               id,
               displayName,
-              _id: user.id
+              _id: user._id.toString()
             });
           }
           return cb(null, pick(user, ['id', 'username', 'role', 'email']));
@@ -68,7 +64,7 @@ if (settings.user.auth.facebook.enabled && !__TEST__) {
       passport.authenticate('facebook', { state: req.query.expoUrl })(req, res, next);
     });
     app.get('/auth/facebook/callback', passport.authenticate('facebook', { session: false }), async function(req, res) {
-      const user = await User.getUser(req.user.id);
+      const user = await User.getUserByEmail(req.user.email);
       const redirectUrl = req.query.state;
       const tokens = await access.grantAccess(user, req);
       const currentUser = await getCurrentUser(req, res);

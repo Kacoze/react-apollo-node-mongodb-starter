@@ -24,7 +24,7 @@ export default {
       enabled: false
     },
     facebook: {
-      enabled: false,
+      enabled: true,
       clientID: process.env.FACEBOOK_CLIENTID,
       clientSecret: process.env.FACEBOOK_CLIENTSECRET,
       scope: ['email'],

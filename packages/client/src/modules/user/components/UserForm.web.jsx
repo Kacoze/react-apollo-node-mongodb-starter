@@ -131,6 +131,7 @@ UserForm.propTypes = {
 const UserFormWithFormik = withFormik({
   mapPropsToValues: values => {
     const { username, email, role, isActive, profile } = values.initialValues;
+    console.log(values);
     return {
       username: username,
       email: email,

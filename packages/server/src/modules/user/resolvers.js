@@ -73,7 +73,6 @@ export default pubsub => ({
           const e = new FieldError();
 
           const userExists = await User.getUserByUsername(input.username);
-          console.log(userExists);
           if (userExists) {
             e.setError('username', t('user:usernameIsExisted'));
           }
